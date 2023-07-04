@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import VideoContainer from './VideoContainer';
+import VideoContainer, { VideoContainerRef } from './VideoContainer';
 
 const MediaRecorderContainer = () => {
   const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const videoRef = useRef<VideoContainerRef | null>(null);
 
   const [constraints, setConstraints] = useState<MediaStreamConstraints>({
-    audio: true,
+    audio: false,
     video: true,
   });
   const [isRecording, setIsRecording] = useState(false);
+  const [isPermitted, setIsPermitted] = useState(false);
 
   const [recordedVideoUrl, setRecordedVideoUrl] = useState('');
 
@@ -29,8 +31,11 @@ const MediaRecorderContainer = () => {
 
     (async () => {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      mediaRecorder.current = new MediaRecorder(stream);
+      setIsPermitted(true);
 
+      videoRef.current?.play(stream);
+
+      mediaRecorder.current = new MediaRecorder(stream);
       mediaRecorder.current.addEventListener('dataavailable', (e) => {
         if (e.data.size > 0) {
           chunks.push(e.data);
@@ -50,7 +55,7 @@ const MediaRecorderContainer = () => {
 
   return (
     <div>
-      <VideoContainer videoUrl={recordedVideoUrl} />
+      <VideoContainer ref={videoRef} isPermitted={isPermitted} />
       {isRecording ? (
         <button onClick={handleRecordingStop}>녹화 중지</button>
       ) : (

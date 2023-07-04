@@ -1,19 +1,31 @@
-import { Ref, forwardRef } from 'react';
+import { Ref, forwardRef, useImperativeHandle, useRef } from 'react';
 import { styled } from 'styled-components';
 
 type VideoContainerProps = {
-  videoUrl?: string;
+  isPermitted?: boolean;
+};
+
+export type VideoContainerRef = {
+  play: (stream: MediaStream) => void;
 };
 
 const VideoContainer = forwardRef(
-  (props: VideoContainerProps, ref: Ref<HTMLVideoElement>) => {
-    const { videoUrl } = props;
+  (props: VideoContainerProps, ref: Ref<VideoContainerRef>) => {
+    const { isPermitted = false } = props;
+    const videoRef = useRef<HTMLVideoElement | null>(null);
 
-    return videoUrl ? (
-      <Video ref={ref} src={videoUrl} controls />
-    ) : (
-      <EmptyVideoContainer />
-    );
+    useImperativeHandle(ref, () => ({
+      play: (stream: MediaStream) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.addEventListener('loadedmetadata', () => {
+            videoRef.current?.play();
+          });
+        }
+      },
+    }));
+
+    return isPermitted ? <Video ref={videoRef} /> : <EmptyVideoContainer />;
   }
 );
 
