@@ -6,7 +6,7 @@ const MediaRecorderContainer = () => {
   const videoRef = useRef<VideoContainerRef | null>(null);
 
   const [constraints, setConstraints] = useState<MediaStreamConstraints>({
-    audio: false,
+    audio: true,
     video: true,
   });
   const [isRecording, setIsRecording] = useState(false);

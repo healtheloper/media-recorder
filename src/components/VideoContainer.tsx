@@ -17,7 +17,10 @@ const VideoContainer = forwardRef(
     useImperativeHandle(ref, () => ({
       play: (stream: MediaStream) => {
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          const videoTracks = stream.getVideoTracks();
+          const mutedVideoStream = new MediaStream(videoTracks);
+
+          videoRef.current.srcObject = mutedVideoStream;
           videoRef.current.addEventListener('loadedmetadata', () => {
             videoRef.current?.play();
           });
