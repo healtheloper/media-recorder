@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import VideoContainer, { VideoContainerRef } from './VideoContainer';
 
+type Video = {
+  url: string;
+  thumbnail: string;
+};
+
 const MediaRecorderContainer = () => {
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const videoRef = useRef<VideoContainerRef | null>(null);
@@ -11,8 +16,7 @@ const MediaRecorderContainer = () => {
   });
   const [isRecording, setIsRecording] = useState(false);
   const [isPermitted, setIsPermitted] = useState(false);
-
-  const [recordedVideoUrl, setRecordedVideoUrl] = useState('');
+  const [videos, setVideos] = useState<Video[]>([]);
 
   const handleRecordingStart = () => {
     mediaRecorder.current?.start(1000);
@@ -48,7 +52,13 @@ const MediaRecorderContainer = () => {
         });
         chunks = [];
         const url = URL.createObjectURL(blob);
-        setRecordedVideoUrl(url);
+        const thumbnail = videoRef.current!.getThumbnail();
+        setVideos((prev) =>
+          prev.concat({
+            url,
+            thumbnail,
+          })
+        );
       });
     })();
   }, [constraints]);
@@ -61,6 +71,13 @@ const MediaRecorderContainer = () => {
       ) : (
         <button onClick={handleRecordingStart}>녹화 시작</button>
       )}
+      <ul>
+        {videos.map((video) => (
+          <li key={video.url}>
+            <img src={video.thumbnail} />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
