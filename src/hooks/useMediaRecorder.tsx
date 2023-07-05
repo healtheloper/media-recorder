@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import video from '../constants/video';
 
+type MediaType = 'video' | 'audio';
 type MediaRecorderHookOption = {
   onRecordingStart?: () => void;
-  onRecordingStop: (videoUrl: string) => void;
+  onRecordingStop: (type: MediaType, videoUrl: string) => void;
 };
 
 const useMediaRecorder = ({
@@ -61,6 +62,9 @@ const useMediaRecorder = ({
 
     (async () => {
       const stream = await getMediaStream();
+      const mediaType = constraints.video ? 'video' : 'audio';
+      const mimeType = mediaType === 'video' ? 'video/webm' : 'audio/webm';
+
       setIsPermitted(true);
       mediaRecorder.current = new MediaRecorder(stream);
       mediaRecorder.current.addEventListener(
@@ -73,11 +77,11 @@ const useMediaRecorder = ({
       );
       mediaRecorder.current.addEventListener('stop', () => {
         const blob = new Blob(chunks, {
-          type: 'video/webm',
+          type: mimeType,
         });
         chunks = [];
         const url = URL.createObjectURL(blob);
-        onRecordingStop(url);
+        onRecordingStop(mediaType, url);
       });
     })();
   }, [constraints]);

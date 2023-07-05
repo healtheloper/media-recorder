@@ -1,12 +1,12 @@
 import { Button, Paper, Stack } from '@mui/material';
 
-type VideoCardProps = {
+type MediaCardProps = {
   title: string;
   onPlayClick: () => void;
   onDeleteClick: () => void;
 };
 
-const VideoCard = (props: VideoCardProps) => {
+const MediaCard = (props: MediaCardProps) => {
   const { title, onPlayClick, onDeleteClick } = props;
 
   const handlePlayClick = () => {
@@ -39,4 +39,4 @@ const VideoCard = (props: VideoCardProps) => {
   );
 };
 
-export default VideoCard;
+export default MediaCard;

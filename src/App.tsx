@@ -1,33 +1,42 @@
 import { useEffect, useRef, useState } from 'react';
 import useMediaRecorder from './hooks/useMediaRecorder';
 import PreviewVideo, { PreviewVideoRef } from './components/PreviewVideo';
-import VideoCard from './components/VideoCard';
-import { Button, Grid, Stack } from '@mui/material';
-import './App.css';
+import { Button, Grid, Stack, Switch } from '@mui/material';
 import VideoPlayer from './components/VideoPlayer';
+import MediaCard from './components/MediaCard';
+import './App.css';
+import AudioPlayer from './components/AudioPlayer';
+import video from './constants/video';
 
-type Video = {
+type MediaType = 'video' | 'audio';
+
+type Media = {
+  type: MediaType;
   title: string;
   url: string;
 };
 
 function App() {
   const previewVideoRef = useRef<PreviewVideoRef>(null);
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [playingVideo, setPlayingVideo] = useState('');
+  const [medias, setMedias] = useState<Media[]>([]);
+  const [playingMedia, setPlayingMedia] = useState<Omit<Media, 'title'> | null>(
+    null
+  );
   const {
     previewStream,
     isPermitted,
     isRecording,
     recordingStart,
     recordingStop,
+    changeConstraints,
   } = useMediaRecorder({
     onRecordingStart: () => {
-      setPlayingVideo('');
+      setPlayingMedia(null);
     },
-    onRecordingStop: (url) => {
-      setVideos((prev) =>
+    onRecordingStop: (type, url) => {
+      setMedias((prev) =>
         prev.concat({
+          type,
           title: new Date().toISOString(),
           url,
         })
@@ -35,14 +44,25 @@ function App() {
     },
   });
 
-  const isPlaying = playingVideo !== '';
+  const isPlaying = playingMedia !== null;
 
-  const handleVideoPlayClick = (url: string) => {
-    setPlayingVideo(url);
+  const handleMediaPlayClick = (type: MediaType, url: string) => {
+    setPlayingMedia({ type, url });
   };
 
-  const handleVideoDeleteClick = (url: string) => {
-    setVideos((prev) => prev.filter((video) => video.url !== url));
+  const handleMediaDeleteClick = (url: string) => {
+    setMedias((prev) => prev.filter((media) => media.url !== url));
+  };
+
+  const handleVideoRecordCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = e.target;
+    const videoConstraints = checked
+      ? { width: video.WIDTH, height: video.HEIGHT }
+      : false;
+    changeConstraints({
+      audio: true,
+      video: videoConstraints,
+    });
   };
 
   useEffect(() => {
@@ -71,19 +91,26 @@ function App() {
         }}
       >
         {isPlaying ? (
-          <VideoPlayer src={playingVideo} />
+          playingMedia.type === 'video' ? (
+            <VideoPlayer src={playingMedia.url} />
+          ) : (
+            <AudioPlayer src={playingMedia.url} />
+          )
         ) : (
           <PreviewVideo ref={previewVideoRef} stream={previewStream} />
         )}
-        {isRecording ? (
-          <Button variant='contained' color='error' onClick={recordingStop}>
-            녹화 중지
-          </Button>
-        ) : (
-          <Button variant='contained' onClick={recordingStart}>
-            녹화 시작
-          </Button>
-        )}
+        <Stack direction='row' spacing={3}>
+          {isRecording ? (
+            <Button variant='contained' color='error' onClick={recordingStop}>
+              녹화 중지
+            </Button>
+          ) : (
+            <Button variant='contained' onClick={recordingStart}>
+              녹화 시작
+            </Button>
+          )}
+          <Switch onChange={handleVideoRecordCheck} defaultChecked />
+        </Stack>
       </Grid>
       <Grid item xs={4}>
         <Stack
@@ -94,12 +121,12 @@ function App() {
             padding: '2rem',
           }}
         >
-          {videos.map((video) => (
-            <li key={video.title}>
-              <VideoCard
-                title={video.title}
-                onPlayClick={() => handleVideoPlayClick(video.url)}
-                onDeleteClick={() => handleVideoDeleteClick(video.url)}
+          {medias.map((media) => (
+            <li key={media.title}>
+              <MediaCard
+                title={media.title}
+                onPlayClick={() => handleMediaPlayClick(media.type, media.url)}
+                onDeleteClick={() => handleMediaDeleteClick(media.url)}
               />
             </li>
           ))}
