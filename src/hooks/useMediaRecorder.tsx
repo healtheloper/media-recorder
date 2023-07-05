@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import video from '../constants/video';
 
 type MediaType = 'video' | 'audio';
@@ -12,11 +12,9 @@ const useMediaRecorder = ({
   onRecordingStop,
 }: MediaRecorderHookOption): {
   isRecording: boolean;
-  isPermitted: boolean;
   recordingStart: () => void;
   recordingStop: () => void;
   changeConstraints: (constraints: MediaStreamConstraints) => void;
-  previewStream: MediaStream;
 } => {
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const mediaStream = useRef<MediaStream | null>(null);
@@ -30,9 +28,6 @@ const useMediaRecorder = ({
       height: video.HEIGHT,
     },
   });
-
-  const videoTracks = mediaStream.current?.getVideoTracks() || [];
-  const previewStream = new MediaStream(videoTracks);
 
   const recordingStart = () => {
     mediaRecorder.current?.start(1000);
@@ -53,7 +48,9 @@ const useMediaRecorder = ({
 
   const getMediaStream = async () => {
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    mediaStream.current = stream;
+    if (!mediaStream.current) {
+      mediaStream.current = stream;
+    }
     return stream;
   };
 
@@ -65,7 +62,9 @@ const useMediaRecorder = ({
       const mediaType = constraints.video ? 'video' : 'audio';
       const mimeType = mediaType === 'video' ? 'video/webm' : 'audio/webm';
 
-      setIsPermitted(true);
+      if (!isPermitted) {
+        setIsPermitted(true);
+      }
       mediaRecorder.current = new MediaRecorder(stream);
       mediaRecorder.current.addEventListener(
         'dataavailable',
@@ -87,9 +86,7 @@ const useMediaRecorder = ({
   }, [constraints]);
 
   return {
-    previewStream,
     isRecording,
-    isPermitted,
     changeConstraints,
     recordingStart,
     recordingStop,

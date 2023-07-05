@@ -1,14 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import useMediaRecorder from './hooks/useMediaRecorder';
-import PreviewVideo, { PreviewVideoRef } from './components/PreviewVideo';
-import { Button, Grid, Stack, Switch } from '@mui/material';
-import VideoPlayer from './components/VideoPlayer';
+import { Button, FormControlLabel, Grid, Stack, Switch } from '@mui/material';
 import MediaCard from './components/MediaCard';
 import './App.css';
-import AudioPlayer from './components/AudioPlayer';
 import video from './constants/video';
-
-type MediaType = 'video' | 'audio';
+import Player, { MediaType } from './components/Player';
 
 type Media = {
   type: MediaType;
@@ -17,34 +13,25 @@ type Media = {
 };
 
 function App() {
-  const previewVideoRef = useRef<PreviewVideoRef>(null);
   const [medias, setMedias] = useState<Media[]>([]);
   const [playingMedia, setPlayingMedia] = useState<Omit<Media, 'title'> | null>(
     null
   );
-  const {
-    previewStream,
-    isPermitted,
-    isRecording,
-    recordingStart,
-    recordingStop,
-    changeConstraints,
-  } = useMediaRecorder({
-    onRecordingStart: () => {
-      setPlayingMedia(null);
-    },
-    onRecordingStop: (type, url) => {
-      setMedias((prev) =>
-        prev.concat({
-          type,
-          title: new Date().toISOString(),
-          url,
-        })
-      );
-    },
-  });
-
-  const isPlaying = playingMedia !== null;
+  const { isRecording, recordingStart, recordingStop, changeConstraints } =
+    useMediaRecorder({
+      onRecordingStart: () => {
+        setPlayingMedia(null);
+      },
+      onRecordingStop: (type, url) => {
+        setMedias((prev) =>
+          prev.concat({
+            type,
+            title: new Date().toISOString(),
+            url,
+          })
+        );
+      },
+    });
 
   const handleMediaPlayClick = (type: MediaType, url: string) => {
     setPlayingMedia({ type, url });
@@ -65,12 +52,6 @@ function App() {
     });
   };
 
-  useEffect(() => {
-    if (isPermitted && previewStream) {
-      previewVideoRef.current?.play();
-    }
-  }, [previewStream, isPermitted]);
-
   return (
     <Grid
       container
@@ -90,15 +71,7 @@ function App() {
           gap: '1rem',
         }}
       >
-        {isPlaying ? (
-          playingMedia.type === 'video' ? (
-            <VideoPlayer src={playingMedia.url} />
-          ) : (
-            <AudioPlayer src={playingMedia.url} />
-          )
-        ) : (
-          <PreviewVideo ref={previewVideoRef} stream={previewStream} />
-        )}
+        <Player type={playingMedia?.type} src={playingMedia?.url} />
         <Stack direction='row' spacing={3}>
           {isRecording ? (
             <Button variant='contained' color='error' onClick={recordingStop}>
@@ -109,7 +82,12 @@ function App() {
               녹화 시작
             </Button>
           )}
-          <Switch onChange={handleVideoRecordCheck} defaultChecked />
+          <FormControlLabel
+            control={
+              <Switch onChange={handleVideoRecordCheck} defaultChecked />
+            }
+            label='비디오 녹화 ON/OFF'
+          />
         </Stack>
       </Grid>
       <Grid item xs={4}>
