@@ -22,6 +22,9 @@ function App() {
     recordingStart,
     recordingStop,
   } = useMediaRecorder({
+    onRecordingStart: () => {
+      setPlayingVideo('');
+    },
     onRecordingStop: (url) => {
       setVideos((prev) =>
         prev.concat({

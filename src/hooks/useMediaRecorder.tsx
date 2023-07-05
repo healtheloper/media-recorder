@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import video from '../constants/video';
 
 type MediaRecorderHookOption = {
+  onRecordingStart?: () => void;
   onRecordingStop: (videoUrl: string) => void;
 };
 
 const useMediaRecorder = ({
+  onRecordingStart,
   onRecordingStop,
 }: MediaRecorderHookOption): {
   isRecording: boolean;
@@ -34,6 +36,9 @@ const useMediaRecorder = ({
   const recordingStart = () => {
     mediaRecorder.current?.start(1000);
     setIsRecording(true);
+    if (onRecordingStart) {
+      onRecordingStart();
+    }
   };
 
   const recordingStop = () => {
