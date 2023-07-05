@@ -1,5 +1,5 @@
 import { ComponentPropsWithoutRef } from 'react';
-import { styled } from 'styled-components';
+import styled from 'styled-components';
 import video from '../constants/video';
 
 type VideoProps = ComponentPropsWithoutRef<'video'>;

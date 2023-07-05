@@ -1,7 +1,7 @@
 import { ComponentPropsWithoutRef } from 'react';
+import styled from 'styled-components';
 import AudioPlayer from './AudioPlayer';
 import VideoPlayer from './VideoPlayer';
-import { styled } from 'styled-components';
 import video from '../constants/video';
 
 export type MediaType = 'video' | 'audio';

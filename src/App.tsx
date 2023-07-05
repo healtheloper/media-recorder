@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import useMediaRecorder from './hooks/useMediaRecorder';
 import { Button, FormControlLabel, Grid, Stack, Switch } from '@mui/material';
+import useMediaRecorder from './hooks/useMediaRecorder';
 import MediaCard from './components/MediaCard';
-import './App.css';
-import video from './constants/video';
 import Player, { MediaType } from './components/Player';
+import video from './constants/video';
+import './App.css';
 
 type Media = {
   type: MediaType;
