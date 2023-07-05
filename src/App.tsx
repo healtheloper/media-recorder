@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import useMediaRecorder from './hooks/useMediaRecorder';
-import './App.css';
 import PreviewVideo, { PreviewVideoRef } from './components/PreviewVideo';
-import VideoCard, { Video } from './components/VideoCard';
+import VideoCard from './components/VideoCard';
 import { Button, Grid, Stack } from '@mui/material';
+import './App.css';
+import VideoPlayer from './components/VideoPlayer';
+
+type Video = {
+  title: string;
+  url: string;
+};
 
 function App() {
   const previewVideoRef = useRef<PreviewVideoRef>(null);
@@ -62,7 +68,7 @@ function App() {
         }}
       >
         {isPlaying ? (
-          <video src={playingVideo} autoPlay controls />
+          <VideoPlayer src={playingVideo} />
         ) : (
           <PreviewVideo ref={previewVideoRef} stream={previewStream} />
         )}
@@ -88,7 +94,7 @@ function App() {
           {videos.map((video) => (
             <li key={video.title}>
               <VideoCard
-                video={video}
+                title={video.title}
                 onPlayClick={() => handleVideoPlayClick(video.url)}
                 onDeleteClick={() => handleVideoDeleteClick(video.url)}
               />

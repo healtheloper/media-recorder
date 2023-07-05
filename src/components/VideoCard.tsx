@@ -1,18 +1,13 @@
 import { Button, Paper, Stack } from '@mui/material';
 
-export type Video = {
-  title: string;
-  url: string;
-};
-
 type VideoCardProps = {
-  video: Video;
+  title: string;
   onPlayClick: () => void;
   onDeleteClick: () => void;
 };
 
 const VideoCard = (props: VideoCardProps) => {
-  const { video, onPlayClick, onDeleteClick } = props;
+  const { title, onPlayClick, onDeleteClick } = props;
 
   const handlePlayClick = () => {
     onPlayClick();
@@ -31,7 +26,7 @@ const VideoCard = (props: VideoCardProps) => {
         padding: '1rem',
       }}
     >
-      <span>{video.title}</span>
+      <span>{title}</span>
       <Stack direction='row' spacing={1}>
         <Button variant='outlined' onClick={handlePlayClick}>
           Play
