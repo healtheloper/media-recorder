@@ -2,50 +2,96 @@ import { useEffect, useRef, useState } from 'react';
 import useMediaRecorder from './hooks/useMediaRecorder';
 import './App.css';
 import PreviewVideo, { PreviewVideoRef } from './components/PreviewVideo';
-
-type Video = {
-  title: string;
-  url: string;
-};
+import VideoCard, { Video } from './components/VideoCard';
+import { Button, Grid, Stack } from '@mui/material';
 
 function App() {
   const previewVideoRef = useRef<PreviewVideoRef>(null);
   const [videos, setVideos] = useState<Video[]>([]);
-  const { previewStream, isRecording, recordingStart, recordingStop } =
-    useMediaRecorder({
-      onRecordingStop: (url) => {
-        setVideos((prev) =>
-          prev.concat({
-            title: new Date().toISOString(),
-            url,
-          })
-        );
-      },
-    });
+  const [playingVideo, setPlayingVideo] = useState('');
+  const {
+    previewStream,
+    isPermitted,
+    isRecording,
+    recordingStart,
+    recordingStop,
+  } = useMediaRecorder({
+    onRecordingStop: (url) => {
+      setVideos((prev) =>
+        prev.concat({
+          title: new Date().toISOString(),
+          url,
+        })
+      );
+    },
+  });
+
+  const isPlaying = playingVideo !== '';
+
+  const handlePlayClick = (url: string) => {
+    setPlayingVideo(url);
+  };
 
   useEffect(() => {
-    if (previewStream) {
+    if (isPermitted && previewStream) {
       previewVideoRef.current?.play();
     }
-  }, [previewStream]);
+  }, [previewStream, isPermitted]);
 
   return (
-    <div>
-      <h1>hello</h1>
-      <PreviewVideo ref={previewVideoRef} stream={previewStream} />
-      {isRecording ? (
-        <button onClick={recordingStop}>녹화 중지</button>
-      ) : (
-        <button onClick={recordingStart}>녹화 시작</button>
-      )}
-      <ul>
-        {videos.map((video) => (
-          <li key={video.title}>
-            <span>{video.title}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        height: '100vh',
+      }}
+    >
+      <Grid
+        item
+        xs={8}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '1rem',
+        }}
+      >
+        {isPlaying ? (
+          <video src={playingVideo} autoPlay controls />
+        ) : (
+          <PreviewVideo ref={previewVideoRef} stream={previewStream} />
+        )}
+        {isRecording ? (
+          <Button variant='contained' color='error' onClick={recordingStop}>
+            녹화 중지
+          </Button>
+        ) : (
+          <Button variant='contained' onClick={recordingStart}>
+            녹화 시작
+          </Button>
+        )}
+      </Grid>
+      <Grid item xs={4}>
+        <Stack
+          spacing={2}
+          sx={{
+            backgroundColor: '#eee',
+            height: '100%',
+            padding: '2rem',
+          }}
+        >
+          {videos.map((video) => (
+            <li key={video.title}>
+              <VideoCard
+                video={video}
+                onPlayClick={() => handlePlayClick(video.url)}
+              />
+            </li>
+          ))}
+        </Stack>
+      </Grid>
+    </Grid>
   );
 }
 
