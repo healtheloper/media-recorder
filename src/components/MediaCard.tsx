@@ -20,20 +20,19 @@ const MediaCard = (props: MediaCardProps) => {
   return (
     <Paper
       sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         padding: '1rem',
       }}
     >
-      <span>{title}</span>
-      <Stack direction='row' spacing={1}>
-        <Button variant='outlined' onClick={handlePlayClick}>
-          Play
-        </Button>
-        <Button variant='outlined' color='error' onClick={handleDeleteClick}>
-          Delete
-        </Button>
+      <Stack spacing={2}>
+        <span>{title}</span>
+        <Stack direction='row' spacing={1}>
+          <Button variant='outlined' onClick={handlePlayClick}>
+            Play
+          </Button>
+          <Button variant='outlined' color='error' onClick={handleDeleteClick}>
+            Delete
+          </Button>
+        </Stack>
       </Stack>
     </Paper>
   );
