@@ -1,5 +1,4 @@
-import { Button, Paper } from '@mui/material';
-import { ComponentPropsWithoutRef } from 'react';
+import { Button, Paper, Stack } from '@mui/material';
 
 export type Video = {
   title: string;
@@ -9,13 +8,18 @@ export type Video = {
 type VideoCardProps = {
   video: Video;
   onPlayClick: () => void;
-} & ComponentPropsWithoutRef<typeof Paper>;
+  onDeleteClick: () => void;
+};
 
 const VideoCard = (props: VideoCardProps) => {
-  const { video, onPlayClick } = props;
+  const { video, onPlayClick, onDeleteClick } = props;
 
   const handlePlayClick = () => {
     onPlayClick();
+  };
+
+  const handleDeleteClick = () => {
+    onDeleteClick();
   };
 
   return (
@@ -28,9 +32,14 @@ const VideoCard = (props: VideoCardProps) => {
       }}
     >
       <span>{video.title}</span>
-      <Button variant='outlined' onClick={handlePlayClick}>
-        Play
-      </Button>
+      <Stack direction='row' spacing={1}>
+        <Button variant='outlined' onClick={handlePlayClick}>
+          Play
+        </Button>
+        <Button variant='outlined' color='error' onClick={handleDeleteClick}>
+          Delete
+        </Button>
+      </Stack>
     </Paper>
   );
 };

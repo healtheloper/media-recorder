@@ -28,8 +28,12 @@ function App() {
 
   const isPlaying = playingVideo !== '';
 
-  const handlePlayClick = (url: string) => {
+  const handleVideoPlayClick = (url: string) => {
     setPlayingVideo(url);
+  };
+
+  const handleVideoDeleteClick = (url: string) => {
+    setVideos((prev) => prev.filter((video) => video.url !== url));
   };
 
   useEffect(() => {
@@ -85,7 +89,8 @@ function App() {
             <li key={video.title}>
               <VideoCard
                 video={video}
-                onPlayClick={() => handlePlayClick(video.url)}
+                onPlayClick={() => handleVideoPlayClick(video.url)}
+                onDeleteClick={() => handleVideoDeleteClick(video.url)}
               />
             </li>
           ))}
