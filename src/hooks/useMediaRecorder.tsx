@@ -30,7 +30,7 @@ const useMediaRecorder = ({
   });
 
   const recordingStart = () => {
-    mediaRecorder.current?.start(1000);
+    mediaRecorder.current?.start(500);
     setIsRecording(true);
     if (onRecordingStart) {
       onRecordingStart();
@@ -60,7 +60,7 @@ const useMediaRecorder = ({
     (async () => {
       const stream = await getMediaStream();
       const mediaType = constraints.video ? 'video' : 'audio';
-      const mimeType = mediaType === 'video' ? 'video/webm' : 'audio/webm';
+      const mimeType = mediaType === 'video' ? 'video/mp4' : 'audio/wav';
 
       if (!isPermitted) {
         setIsPermitted(true);
